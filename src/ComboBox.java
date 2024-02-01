@@ -1,33 +1,35 @@
 import java.awt.EventQueue;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.event.*;
-import java.beans.*;
 import java.io.*;
 import java.util.Scanner;
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class ComboBox extends JFrame {
+public class ComboBox extends JFrame implements ActionListener {
 	
 	
-	private final String PATH_TO_SRC = "C:\\Tomcat10.1\\webapps\\ROOT\\ComoBox\\src";
+	private final String PATH_TO_SRC = "C:\\Users\\Usuario\\Desktop\\ComboBoxRestaurante\\src";
 	private final String IMGS_DIR_NAME = "imgs";
-	private final String MODEL_DIR_NAME = "imgs";
-	
+	private final String MODEL_DIR_NAME = "model";
 			
 	private static final long serialVersionUID = 1L;
 	private JPanel PanelContenido;
-	private JComboBox comboBoxPrimeros;
-	private JComboBox comboBoxSegundos;
-	private JComboBox comboBoxPostre;
-	private JComboBox comboBoxBebidas;
-	private JLabel segundoImg;
-	private JLabel postreImg;
-	private JLabel bebidaImg;
+	private JComboBox<String> comboBoxPrimeros;
+	private JComboBox<String> comboBoxSegundos;
+	private JComboBox<String> comboBoxPostres;
+	private JComboBox<String> comboBoxBebidas;
+	private JLabel primeroImg = new JLabel();
+	private JLabel segundoImg = new JLabel();
+	private JLabel postreImg = new JLabel();
+	private JLabel bebidaImg = new JLabel();
 	private JLabel backgroundImg;
 	private JLabel restaurantTitle;
+	private FileWriter comanda;
+	JButton deliverButton;
+
 
 	/**
 	 * Launch the application.
@@ -50,123 +52,207 @@ public class ComboBox extends JFrame {
 	 */
 	public ComboBox() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1114, 756);
+		//setBounds(100, 100, 1232, 795);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		PanelContenido = new JPanel();
 		PanelContenido.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(PanelContenido);
 		PanelContenido.setLayout(null);
+		PanelContenido.setBounds(0, 0, getWidth(), getHeight());
 		
-		JButton deliverButton = new JButton("Trae a comida ostia");
-		deliverButton.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		deliverButton.setBorderPainted(false);
-		deliverButton.setBackground(new Color(179, 89, 0));
-		deliverButton.setFont(new Font("Ink Free", Font.BOLD, 30));
-		deliverButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		deliverButton.setBounds(582, 598, 334, 58);
-		PanelContenido.add(deliverButton);
+				comboBoxPrimeros = new JComboBox<String>();
+				comboBoxPrimeros.setBounds(83, 146, 229, 26);
+				comboBoxPrimeros.addActionListener(this);
+				
+				comboBoxSegundos = new JComboBox<String>();
+				comboBoxSegundos.setBounds(355, 146, 229, 26);
+				comboBoxSegundos.addActionListener(this);
+				
+						comboBoxPostres = new JComboBox<String>();
+						comboBoxPostres.setBounds(289, 337, 229, 26);
+						comboBoxPostres.addActionListener(this);
+						
+								comboBoxBebidas = new JComboBox<String>();
+								comboBoxBebidas.setBounds(598, 337, 229, 26);
+								comboBoxBebidas.addActionListener(this);
+								
+								deliverButton = new JButton("Trae a comida ostia");
+								deliverButton.setBorderPainted(false);
+								deliverButton.setBackground(new Color(179, 89, 0));
+								deliverButton.setFont(new Font("Ink Free", Font.BOLD, 30));
+								
+								deliverButton.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent e) {
+										if(e.getSource() == deliverButton) {
+											deliverButton.setEnabled(false);
+											deliverButton.setVisible(false);
+											try {
+												// Una comanda.txt para cada pedido
+												LocalDateTime now = LocalDateTime.now();
+												DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+												String fechaFormateada = now.format(formatter);
+												String nombreArchivo = "comanda-" + fechaFormateada + ".txt";
+												comanda = new FileWriter(PATH_TO_SRC + "\\" + MODEL_DIR_NAME + "\\" + nombreArchivo);
+												
+												
+												DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+												String fechaFormateada2 = now.format(formatter2);
+												
+												comanda.write("Comanda con fecha " + fechaFormateada2 + "\n" +
+														"\tPrimero: " + comboBoxPrimeros.getSelectedItem() + "\n" +
+														"\tSegundo: " + comboBoxSegundos.getSelectedItem() + "\n" +
+														"\tBebida: " + comboBoxPostres.getSelectedItem() + "\n" +
+														"\tPostre: " + comboBoxBebidas.getSelectedItem() + "\n"
+												);
+												comanda.close();
+												verMensaje("Tu pedido:\n " +
+														"	Primero: " + comboBoxPrimeros.getSelectedItem() + "\n" +
+														"	Segundo: " + comboBoxSegundos.getSelectedItem() + "\n" +
+														"	Bebida: " + comboBoxPostres.getSelectedItem() + "\n" +
+														"	Postre: " + comboBoxBebidas.getSelectedItem() + "\n");
+												dispose();
+												main(null);
+												
+											} catch (IOException e1) {
+												e1.printStackTrace();
+											}
+										}
+									}
+								});
+								
+								restaurantTitle = new JLabel("Taberna do Carallo");
+								restaurantTitle.setBackground(new Color(0, 255, 0));
+								restaurantTitle.setFont(new Font("Ink Free", Font.BOLD, 80));
+								restaurantTitle.setBounds(242, 115, 752, 135);
+								PanelContenido.add(restaurantTitle);
+								
+								deliverButton.setBounds(582, 598, 334, 58);
+								PanelContenido.add(deliverButton);
+								PanelContenido.add(comboBoxBebidas);
+						PanelContenido.add(comboBoxPostres);
+				PanelContenido.add(comboBoxSegundos);
+				PanelContenido.add(comboBoxPrimeros);
 		
-		restaurantTitle = new JLabel("Taberna do Carallo");
-		restaurantTitle.setBackground(new Color(0, 255, 0));
-		restaurantTitle.setFont(new Font("Ink Free", Font.BOLD, 80));
-		restaurantTitle.setBounds(192, 24, 752, 135);
-		PanelContenido.add(restaurantTitle);
-		
-		JLabel primeroImg = new JLabel("");
-		primeroImg.setBackground(new Color(0, 0, 255));
-		primeroImg.setBounds(289, 171, 230, 160);
-		PanelContenido.add(primeroImg);
+		cargarOpciones();
 
-		comboBoxPrimeros = new JComboBox();
-		comboBoxPrimeros.addItem("-- PRIMEIROS PLATOS seleccione --");
-		comboBoxPrimeros.addItem("Orella");
-		comboBoxPrimeros.addItem("Tripón");
-		comboBoxPrimeros.addItem("Pulpo de Carballiño");
-		comboBoxPrimeros.addItem("Callos");
-		comboBoxPrimeros.addItem("Cachucha");
-		comboBoxPrimeros.addItem("Lacón con grelos");
-		comboBoxPrimeros.addItem("Cachelos cocidos con pimentón picante");
-		comboBoxPrimeros.addItem("Cesped vegano para Pablo");
-		comboBoxPrimeros.setBounds(289, 134, 229, 26);
-		PanelContenido.add(comboBoxPrimeros);
-
-		comboBoxSegundos = new JComboBox();
-		comboBoxSegundos.addItem("-- SEGUNDOS PLATOS seleccione --");
-		comboBoxSegundos.addItem("Cocido galego");
-		comboBoxSegundos.addItem("Zorza con patacas");
-		comboBoxSegundos.addItem("Chourizos ao viño");
-		comboBoxSegundos.addItem("Carne ao caldeiro");
-		comboBoxSegundos.addItem("Carne richada");
-		comboBoxSegundos.addItem("Herba seca vegana para Pablo");
-		comboBoxSegundos.setBounds(598, 134, 229, 26);
-		PanelContenido.add(comboBoxSegundos);
-
-		comboBoxPostre = new JComboBox();
-		comboBoxPostre.addItem("-- POSTRES seleccione --");
-		comboBoxPostre.addItem("Tarta de Whiskey");
-		comboBoxPostre.addItem("Tarta helada con ron");
-		comboBoxPostre.addItem("Brazo de gitano con anís");
-		comboBoxPostre.addItem("Toxo vegano para Pablo");
-		comboBoxPostre.setBounds(289, 337, 229, 26);
-		PanelContenido.add(comboBoxPostre);
-
-		comboBoxBebidas = new JComboBox();
-		comboBoxBebidas.addItem("-- BEBIDAS seleccione --");
-		comboBoxBebidas.addItem("Licor de herbas");
-		comboBoxBebidas.addItem("Licor café");
-		comboBoxBebidas.addItem("Augardente");
-		comboBoxBebidas.addItem("Viño da casa");
-		comboBoxBebidas.addItem("Auga vegana para Pablo");
-		comboBoxBebidas.setBounds(598, 337, 229, 26);
-		PanelContenido.add(comboBoxBebidas);
-		
-		segundoImg = new JLabel("");
-		segundoImg.setBackground(Color.BLUE);
-		segundoImg.setBounds(598, 171, 230, 160);
-		PanelContenido.add(segundoImg);
-		
-		postreImg = new JLabel("");
-		postreImg.setBackground(Color.BLUE);
-		postreImg.setBounds(288, 373, 230, 160);
-		PanelContenido.add(postreImg);
-		
-		bebidaImg = new JLabel("");
-		bebidaImg.setBackground(Color.BLUE);
-		bebidaImg.setBounds(598, 374, 230, 160);
-		PanelContenido.add(bebidaImg);
-		
 		backgroundImg = new JLabel(new ImageIcon(PATH_TO_SRC + "\\" + IMGS_DIR_NAME + "\\" + "tablaComida.png"));
-		backgroundImg.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-		backgroundImg.setBounds(10, 11, 1078, 695);
+		backgroundImg.setBounds(0, 0, getWidth(), getHeight());
 		PanelContenido.add(backgroundImg);
-		
 		
 	}
 
-	static void cargarOpciones(JComboBox primeros) {
-		String ficheroPrimeros = new File ("").getAbsolutePath()+"\\src\\main\\java\\primeros.var";
-		File fichero=new File(ficheroPrimeros);
+	public void cargarOpciones() {
+		String pathFicheroPrimeros = new File ("").getAbsolutePath()+"\\src\\model\\primeros.txt";
+		String pathFicheroSegundos = new File ("").getAbsolutePath()+"\\src\\model\\segundos.txt";
+		String pathFicheroPostres = new File ("").getAbsolutePath()+"\\src\\model\\postres.txt";
+		String pathFicheroBebidas = new File ("").getAbsolutePath()+"\\src\\model\\bebidas.txt";
+		
+		File ficheroPrimeros = new File(pathFicheroPrimeros);
+		File ficheroSegundos = new File(pathFicheroSegundos);
+		File ficheroPostres = new File(pathFicheroPostres);
+		File ficheroBebidas = new File(pathFicheroBebidas);
 		
 		try {
-			Scanner s = new Scanner(fichero);
-
-			// Leemos linea a linea el fichero
-			while (s.hasNextLine()) {
-				String linea = s.nextLine(); // Guardamos la linea en un String
-				primeros.addItem(linea);
+			Scanner s1 = new Scanner(ficheroPrimeros);
+			Scanner s2 = new Scanner(ficheroSegundos);
+			Scanner sb = new Scanner(ficheroPostres);
+			Scanner sp = new Scanner(ficheroBebidas);
+			
+			while (s1.hasNextLine()) {
+				String linea = s1.nextLine();
+				comboBoxPrimeros.addItem(linea);
 			}
-
-			s.close();
+			
+			while (s2.hasNextLine()) {
+				String linea = s2.nextLine();
+				comboBoxSegundos.addItem(linea);
+			}
+			
+			while (sp.hasNextLine()) {
+				String linea = sp.nextLine();
+				comboBoxPostres.addItem(linea);
+			}
+			
+			while (sb.hasNextLine()) {
+				String linea = sb.nextLine();
+				comboBoxBebidas.addItem(linea);
+			}
+						
+			s1.close();
+			s2.close();
+			sp.close();
+			sb.close();
+			
 		} catch (Exception ex) {
 			System.out.println("Mensaje: " + ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 
-
-	static void verMensaje(String mensaje) {
+	public void verMensaje(String mensaje) {
 		JOptionPane.showMessageDialog(null, mensaje);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			
+		    if (comboBoxPrimeros.getSelectedIndex() != 0) {
+		        String selectedItem = (String) comboBoxPrimeros.getSelectedItem();
+		        if (selectedItem != null) {
+		            primeroImg.setIcon(new ImageIcon(PATH_TO_SRC + "\\" + IMGS_DIR_NAME + "\\" +
+		                    selectedItem.replaceAll("\\s", "") + ".png"));
+		            primeroImg.setBackground(new Color(0, 0, 255));
+		            primeroImg.setBounds(289, 171, 230, 160);       
+		            PanelContenido.add(primeroImg);
+		            PanelContenido.setComponentZOrder(primeroImg, 0);
+		        }
+		    } 
+		    
+		    if (comboBoxSegundos.getSelectedIndex() != 0) {
+		        String selectedItem = (String) comboBoxSegundos.getSelectedItem();
+		        if (selectedItem != null) {
+		            segundoImg.setIcon(new ImageIcon(PATH_TO_SRC + "\\" + IMGS_DIR_NAME + "\\" +
+		                    selectedItem.replaceAll("\\s", "") + ".png")
+		            );
+		            segundoImg.setBounds(598, 171, 230, 160);
+		            PanelContenido.add(segundoImg);
+		            PanelContenido.setComponentZOrder(segundoImg, 0);
+		        }
+		    } 
+		    
+		    if (comboBoxPostres.getSelectedIndex() != 0) {
+		        String selectedItem = (String) comboBoxPostres.getSelectedItem();
+		        if (selectedItem != null) {
+		            postreImg.setIcon(new ImageIcon(PATH_TO_SRC + "\\" + IMGS_DIR_NAME + "\\" +
+		                    selectedItem.replaceAll("\\s", "") + ".png")
+		            );
+		            postreImg.setBounds(288, 373, 230, 160);
+		            PanelContenido.add(postreImg);
+		            PanelContenido.setComponentZOrder(postreImg, 0);
+		        }
+		    } 
+		    
+		    if (comboBoxBebidas.getSelectedIndex() != 0) {
+		        String selectedItem = (String) comboBoxBebidas.getSelectedItem();
+		        if (selectedItem != null) {
+		            bebidaImg.setIcon(new ImageIcon(PATH_TO_SRC + "\\" + IMGS_DIR_NAME + "\\" +
+		                    selectedItem.replaceAll("\\s", "") + ".png")
+		            );
+		            bebidaImg.setBounds(598, 374, 230, 160);
+		            PanelContenido.add(bebidaImg);
+		            PanelContenido.setComponentZOrder(bebidaImg, 0);
+		        }
+		    }
+		    
+		    
+		    
+		} catch (Exception exc) {
+		    System.err.println("Error durante la creación de la imagen.");
+		    exc.printStackTrace();
+		}
+
+
 	}
 }

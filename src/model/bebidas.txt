@@ -1,5 +1,6 @@
+-- BEBIDAS seleccione --
 Licor de herbas
 Licor café
 Augardente
 Viño da casa
-Auga vegana 100% para Pablo
+Auga vegana para Pablo
